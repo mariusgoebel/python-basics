@@ -25,9 +25,9 @@ def genFiles(current,old):
             writefile.write(data.format(rnd(10000,99999),date,fee[1]))
 
 
-genFiles(memReg,exReg)
+    genFiles(memReg,exReg)
 
-def cleanFiles(currentMem,exMem):
+    def cleanFiles(currentMem,exMem):
 
     '''
     currentMem: File containing list of current members
@@ -67,20 +67,48 @@ def cleanFiles(currentMem,exMem):
     pass 
 
 
-# Code to help you see the files
-# Leave as is
-memReg = 'members.txt'
-exReg = 'inactive.txt'
-cleanFiles(memReg,exReg)
+    # Code to help you see the files
+    # Leave as is
+    memReg = 'members.txt'
+    exReg = 'inactive.txt'
+    cleanFiles(memReg,exReg)
 
 
-headers = "Membership No  Date Joined  Active  \n"
-with open(memReg,'r') as readFile:
-    print("Active Members: \n\n")
-    print(readFile.read())
+    headers = "Membership No  Date Joined  Active  \n"
+    with open(memReg,'r') as readFile:
+        print("Active Members: \n\n")
+        print(readFile.read())
     
-with open(exReg,'r') as readFile:
-    print("Inactive Members: \n\n")
-    print(readFile.read())
+    with open(exReg,'r') as readFile:
+        print("Inactive Members: \n\n")
+        print(readFile.read())
     
     
+########### ###########
+
+    cg = CoinGeckoAPI()
+
+    bitcoin_data = cg.get_coin_market_chart_by_id(id='bitcoin', vs_currency='usd', days=30)
+    
+    type(bitcoin_data )
+    
+    bitcoin_price_data = bitcoin_data['prices']
+
+    bitcoin_price_data[0:5]
+    
+    data = pd.DataFrame(bitcoin_price_data, columns=['TimeStamp', 'Price'])
+    
+    data['date'] = data['TimeStamp'].apply(lambda d: datetime.date.fromtimestamp(d/1000.0))
+
+    candlestick_data = data.groupby(data.date, as_index=False).agg({"Price": ['min', 'max', 'first', 'last']})
+    
+    fig = go.Figure(data=[go.Candlestick(x=candlestick_data['date'],
+                open=candlestick_data['Price']['first'], 
+                high=candlestick_data['Price']['max'],
+                low=candlestick_data['Price']['min'], 
+                close=candlestick_data['Price']['last'])
+                ])
+
+    fig.update_layout(xaxis_rangeslider_visible=False)
+
+    fig.show()
