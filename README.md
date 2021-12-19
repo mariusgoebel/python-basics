@@ -1,6 +1,6 @@
 # python-basics
 
-#Run this prior to starting the exercise
+#Run this prior 
 from random import randint as rnd
 
 memReg = 'members.txt'
